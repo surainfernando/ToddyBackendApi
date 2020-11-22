@@ -6,11 +6,11 @@ const dbName = 'project1';
 
 testone();
 
-async function testone()
+ async function testone()
 {var x={name:"rockckck"}
      x=await findOne()
    var OwnerList=x.Owner
-   OwnerList.option5=555
+   OwnerList.option7=5777557
     console.log(OwnerList)
     updateOwner(OwnerList)
 
