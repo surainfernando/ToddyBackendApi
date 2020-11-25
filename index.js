@@ -51,21 +51,12 @@ handleRegisterBusinessman(req,res)
 })
 app.post('/businessman/login', (req, res) => {
 
-  // const firstname=req.body.firstname
-  // const lastname=req.body.lastname
-  // console.log(lastname+" "+firstname)
-  console.log("post------------------------------------------")
-  var x = { dd: "dd789fdf" }
-  // let busi=new businessman();
-  //const resultObj=  async busi.loginBusinessman2(req.body)
-
-  // const  xv=busi.loginBusinessman(req.body)
-
-
-  //console.log(resultObj)
-  console.log("email888888888888888888888888888888888888888")
-  //res.send(x)
-  loginBusinessman(req.body, res)
+  
+  console.log("postlogin------------------------------------------")
+  
+  
+  //loginBusinessman(req.body, res)
+  handeLogin(req,res)
 })
 app.get('/d', (req, res) => {
   console.log("------------------------------------------------------------");
@@ -76,6 +67,8 @@ app.get('/d', (req, res) => {
 
 /*88888888888888888888888888888888888888888888888888*/
 /* *Mysql Functions*/
+
+/**SS01 Businessman Registration Component */
 async function handleRegisterBusinessman(req,res) {
 
   var results = await testForBusinessEmail(req)
@@ -97,7 +90,7 @@ async function handleRegisterBusinessman(req,res) {
       let busi = new businessman();
    busi.registerBusinessman(req.body)
 
-      res.send({status:true})
+      res.send({status:true,error:'none'})
     }
 
 
@@ -167,6 +160,72 @@ async function testForBusinessPermit(req) {
 
 
 }
+
+/**SS02 Businessman Registration Component */
+
+/**SS01 Businessman Login Component */
+async function handeLogin(req,res)
+{
+  var results = await testForEmailPassword(req)
+  results=JSON.parse(JSON.stringify(results))
+  if(results.length>0)
+  { var obj=results[0];
+    var x={status:true}
+    x.name=obj.name
+    x.permit=obj.permit_number
+    x.business_type=obj.business_type
+    x.noOfTrees=String(obj.no_of_trees)
+    x.location=obj.location
+    x.email=obj.email
+    x.password=obj.password
+    console.log(x)
+
+   
+ 
+  res.send(x)
+
+}
+  else{
+    var x={status:false}
+    res.send(x)
+   
+
+
+
+    }
+
+
+}
+
+async function testForEmailPassword(req) {
+
+
+  var connection11 = new Connections()
+  var connection1 = connection11.mySQLConnection()
+
+  const db = makeDb();
+  await db.connect(connection1);
+  console.log(req.body.email)
+  var xx=`select * from businessman where email='${req.body.email}' && password='${req.body.password}'`
+  console.log(xx)
+
+  try {
+    const users = await db.query(connection1,xx);
+   // console.log(users)
+    return users
+  } catch (e) {
+    // handle exception
+  } finally {
+    console.log('fdfd1')
+    //await db.close(connection1);
+    console.log('yfdfd')
+    //l return users
+  }
+
+
+}
+
+/**SS02 Businessman Login Component */
 
 
 
