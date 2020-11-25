@@ -82,15 +82,32 @@ async function handleRegisterBusinessman(req,res) {
   results=JSON.parse(JSON.stringify(results))
   if(results.length>0)
   {console.log("Eroor persist")
-  
+  var x={status:false,error:"email"}
+  res.send(x)
+
 }
   else{
-    console.log("No error ar")}
+    var results = await testForBusinessPermit(req)
+    results=JSON.parse(JSON.stringify(results))
+    if(results.length>0)
+    {console.log("Eroonnnnnnr persist")
+    var x={status:false,error:"permit"}
+    res.send(x)}
+    else{
+      let busi = new businessman();
+   busi.registerBusinessman(req.body)
+
+      res.send({status:true})
+    }
+
+
+
+    }
 
   
   //console.log("usera are")
   //console.log(t)
-  res.send('Hello pppp99p999999999999999999999999999Wooooorld!') //
+  //res.send('Hello pppp99p999999999999999999999999999Wooooorld!') //
 
 
 
@@ -126,7 +143,7 @@ async function testForBusinessEmail(req) {
 
 }
 
-async function testForBusinessPermit() {
+async function testForBusinessPermit(req) {
 
 
   var connection11 = new Connections()
@@ -136,7 +153,7 @@ async function testForBusinessPermit() {
   await db.connect(connection1);
 
   try {
-    const users = await db.query(connection1, `select * from businessman where permit_number='qll12'`);
+    const users = await db.query(connection1, `select * from businessman where permit_number='${req.body.permit}'`);
     console.log(users)
     return users
   } catch (e) {
