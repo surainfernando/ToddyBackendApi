@@ -14,6 +14,7 @@ const url = 'mongodb+srv://projectuser:IiMo2111@individualproject.3gcox.mongodb.
 const dbName = 'project1';
 var mysql = require('mysql');
 const { makeDb } = require('mysql-async-simple');
+var sqlConnection=require('./Connections.js')
 const test101 = require('./test101');
 const { Connection } = require('mongoose');
 const Connections = require('./Connections.js')
@@ -35,8 +36,11 @@ app.get('/', (req, res) => {
   console.log("------------------------------------------------------------");
   res.send('Hello World!')
 })
+/**SS01- For database Fubnctions*/
+/**RR01 for request groups*/
 
 
+/**RR01 businessman */
 app.post('/businessman/register', (req, res) => {
 
 
@@ -63,6 +67,29 @@ app.get('/d', (req, res) => {
   handleRegisterBusinessman(res)
   //res.send('Hello World!')
 })
+/**RR02 businessman */
+
+/**RR01 toddyBatch*/
+
+app.post('/toddybatch/add', (req, res) => {
+
+console.log('/toddybatch/add---------------------------')
+  // console.log("post------------------------------------------")
+  // var x = { dd: "ddfdf" }
+  // let busi = new businessman();
+  // busi.registerBusinessman(req.body)
+  // console.log(req.body)
+  //res.send(x)
+//handleRegisterBusinessman(req,res)
+//console.log(req)
+addToddyBatch(req)
+res.send({a:34})
+
+})
+
+
+
+/**RR02 toddyBatch*/
 
 
 /*88888888888888888888888888888888888888888888888888*/
@@ -179,6 +206,7 @@ async function handeLogin(req,res)
     x.email=obj.email
     x.password=obj.password
     console.log(x)
+    
 
    
  
@@ -226,6 +254,76 @@ async function testForEmailPassword(req) {
 }
 
 /**SS02 Businessman Login Component */
+
+/**SS01 Batch ADD */
+
+async function handeBatchAdd(req,res)
+{
+  var results = await testForEmailPassword(req)
+  results=JSON.parse(JSON.stringify(results))
+  if(results.length>0)
+  { var obj=results[0];
+    var x={status:true}
+    x.name=obj.name
+    x.permit=obj.permit_number
+    x.business_type=obj.business_type
+    x.noOfTrees=String(obj.no_of_trees)
+    x.location=obj.location
+    x.email=obj.email
+    x.password=obj.password
+    console.log(x)
+    
+
+   
+ 
+  res.send(x)
+
+}
+  else{
+    var x={status:false}
+    res.send(x)
+   
+
+
+
+    }
+
+
+}
+function addToddyBatch(req)
+{
+  //console.log(req)
+  //var connection11 = new Connections()
+  var Connection=new sqlConnection();
+  var con=Connection.mySQLConnection()
+    con.connect(function(err) {
+        if (err) throw err;
+        var z=new Date().toISOString().slice(0, 19).replace('T', ' ');
+        console.log("Connected!");
+        var volume=parseInt(req.body.volume)
+        var sql=`insert into persons2(LastName) values('jhn')`
+        var sql=`insert into Toddy_Batch(date_created,volume,creator_permit,creator_name,current_owner_permit,current_owner_name,current_owner_purchase_date) values('${z}',${volume},'${req.body.permit}','${req.body.name}','${req.body.permit}','${req.body.name}','${z}')`
+        //         var x={name:jsonObject.name,permit:jsonObject.permit,business_type:jsonObject.business,noOfTrees:200,location:jsonObject.location,email:jsonObject.email,password:jsonObject.pass1}
+    
+        
+        //var sql = `Insert into Businessman3(permit_number,date_created,nic) values('${x}','${z}','${y}')`;
+        //var sql = `Insert into Businessman2(permit_number,nic) values('${x}','${y}')`;
+    
+    
+        con.query(sql, function (err, result) {
+          if (err) throw err;
+          console.log("Table created");
+          con.end();
+        });
+      });
+
+
+
+    
+}
+
+
+/**SS02 Batch ADD */
 
 
 
