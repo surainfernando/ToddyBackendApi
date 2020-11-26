@@ -81,11 +81,28 @@ console.log('/toddybatch/add---------------------------')
   // console.log(req.body)
   //res.send(x)
 //handleRegisterBusinessman(req,res)
-//console.log(req)
+//console.log(req)g
 addToddyBatch(req)
 res.send({a:34})
 
 })
+app.post('/toddybatch/getToddyTapperBatch', (req, res) => {
+
+  console.log('/toddybatch/getToddyTapperBatch---------------------------')
+    // console.log("post------------------------------------------")
+    // var x = { dd: "ddfdf" }
+    // let busi = new businessman();
+    // busi.registerBusinessman(req.body)
+    // console.log(req.body)
+    //res.send(x)
+  //handleRegisterBusinessman(req,res)
+  //console.log(req)
+  console.log("req body-"+req.body.name)
+  console.log("req body-"+req.body.permit)
+  handleGetToddyTapperBatch(req,res)
+  //res.send({a:34})
+  
+  })
 
 
 
@@ -135,7 +152,7 @@ async function handleRegisterBusinessman(req,res) {
 
 
 
-async function testForBusinessEmail(req) {
+async function  testForBusinessEmail(req) {
 
 
   var connection11 = new Connections()
@@ -320,6 +337,45 @@ function addToddyBatch(req)
 
 
     
+}
+
+async function handleGetToddyTapperBatch(req,res)
+{
+  var xx=await getToddyTapperBatch(req)
+  var results=JSON.parse(JSON.stringify(xx))
+  console.log(results)
+  var resultmod={result:results}
+  console.log("resultmod00000000000000000000000000000000000000000000000000000000000000000000")
+  console.log(resultmod)
+  res.send(resultmod)
+}
+
+async function getToddyTapperBatch(req) {
+
+
+  var connection11 = new Connections()
+  var connection1 = connection11.mySQLConnection()
+
+  const db = makeDb();
+  await db.connect(connection1);
+  console.log(req.body.email)
+  var xx=`select * from toddy_batch where creator_permit='${req.body.permit}'`
+  console.log(xx)
+
+  try {
+    const users = await db.query(connection1,xx);
+   // console.log(users)
+    return users
+  } catch (e) {
+    // handle exception
+  } finally {
+    console.log('fdfd1')
+    //await db.close(connection1);
+    console.log('yfdfd')
+    //l return users
+  }
+
+
 }
 
 
