@@ -103,6 +103,30 @@ app.post('/toddybatch/getToddyTapperBatch', (req, res) => {
   //res.send({a:34})
   
   })
+  app.post('/toddybatch/makeToddySellRequest', (req, res) => {
+
+  console.log('/toddybatch/makeToddySellRequest--------------------------')
+    // console.log("post------------------------------------------")
+    // var x = { dd: "ddfdf" }
+    // let busi = new businessman();
+    // busi.registerBusinessman(req.body)
+    // console.log(req.body)
+    //res.send(x)
+  //handleRegisterBusinessman(req,res)
+  console.log(req.body)
+  //onsole.log("req body-"+req.body.name)
+  //console.log("req body-"+req.body.permit)
+  //handleGetToddyTapperBatch(req,res)
+
+  // var dd=req.body.date_created
+  // console.log("dd"+dd)
+  // var d=new Date(dd).toISOString()
+  // console.log("d=="+d)
+  makeToddySellRequest(req)
+  res.send({s:1})
+  
+  
+  })
 
 
 
@@ -380,6 +404,46 @@ async function getToddyTapperBatch(req) {
 
 
 /**SS02 Batch ADD */
+
+function makeToddySellRequest(req)
+{//jjjjjjjjjjjjjjjjjj
+  //console.log(req)
+  //var connection11 = new Connections()
+  //date_created: '2020-11-25T18:30:00.000Z',
+  var z=new Date(req.body.date_created).toISOString().slice(0, 19).replace('T', ' ');
+  
+ 
+  var Connection=new sqlConnection();
+  var con=Connection.mySQLConnection()
+    con.connect(function(err) {
+        if (err) throw err;
+        var dateee=req.body.date_created
+        console.log("req.body.date_created "+dateee)
+       // var z=new dateee.toISOString().slice(0, 19).replace('T', ' ');
+       // console.log("z "+z)
+        console.log("Connected!");
+        var volume=parseInt(req.body.volume)
+        var sql=`insert into persons2(LastName) values('jhn')`
+        var sql=`insert into Toddy_Request(date_created,volume,approval_status,batch_id,buyer_permit_number,seller_permit_number,seller_name,buyer_name) values
+        ('${z}',${req.body.volume},0,${req.body.batch_id},'${req.body.buyer_permit_number}','${req.body.seller_permit_number}','${req.body.seller_name}','${ req.body.buyer_name}')`
+        //         var x={name:jsonObject.name,permit:jsonObject.permit,business_type:jsonObject.business,noOfTrees:200,location:jsonObject.location,email:jsonObject.email,password:jsonObject.pass1}
+    
+        
+        //var sql = `Insert into Businessman3(permit_number,date_created,nic) values('${x}','${z}','${y}')`;
+        //var sql = `Insert into Businessman2(permit_number,nic) values('${x}','${y}')`;
+    
+    
+        con.query(sql, function (err, result) {
+          if (err) throw err;
+          console.log("Tablel created");
+          con.end();
+        });
+      });
+
+
+
+    
+}
 
 
 
