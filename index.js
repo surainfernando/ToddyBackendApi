@@ -37,6 +37,14 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 /**SS01- For database Fubnctions*/
+
+
+
+
+
+
+
+
 /**RR01 for request groups*/
 
 
@@ -108,6 +116,29 @@ app.post('/toddybatch/getToddyTapperBatch', (req, res) => {
 
 
 /**RR02 toddyBatch*/
+
+
+/**RR01 Toddy purchase*/
+app.post('/toddybatch/maketransfer', (req, res) => {
+
+  console.log('/toddybatch/maketransfer--------------------------')
+    
+  
+  //makeToddySellRequest(req)
+ // console.log("madetoddy sell request")
+ // updateToddybatchAfterToddySellRequest(req)
+ handleToddyPurchase(req,res)
+ console.log(req.body)
+  //res.send({s:1})
+  
+  
+  })
+/**RR02 Toddy purchase*/
+
+
+
+
+
 /**RR01 Toddy Request*/
 app.post('/toddybatch/makeToddySellRequest', (req, res) => {
 
@@ -129,6 +160,8 @@ app.post('/toddybatch/makeToddySellRequest', (req, res) => {
   // var d=new Date(dd).toISOString()
   // console.log("d=="+d)
   makeToddySellRequest(req)
+  console.log("madetoddy sell request")
+  updateToddybatchAfterToddySellRequest(req)
   res.send({s:1})
   
   
@@ -348,6 +381,8 @@ async function handeBatchAdd(req,res)
 }
 function addToddyBatch(req)
 {
+  var permitOwnerName=req.body.name
+  var permitOwnerPermit=req.body.permit
   //console.log(req)
   //var connection11 = new Connections()
   var Connection=new sqlConnection();
@@ -358,7 +393,7 @@ function addToddyBatch(req)
         console.log("Connected!");
         var volume=parseInt(req.body.volume)
         var sql=`insert into persons2(LastName) values('jhn')`
-        var sql=`insert into Toddy_Batch(date_created,volume,creator_permit,creator_name,current_owner_permit,current_owner_name,current_owner_purchase_date) values('${z}',${volume},'${req.body.permit}','${req.body.name}','${req.body.permit}','${req.body.name}','${z}')`
+        var sql=`insert into Toddy_Batch(requested,date_created,volume,creator_permit,creator_name,current_owner_permit,current_owner_name,current_owner_purchase_date) values(0,'${z}',${volume},'${req.body.permit}','${req.body.name}','${req.body.permit}','${req.body.name}','${z}')`
         //         var x={name:jsonObject.name,permit:jsonObject.permit,business_type:jsonObject.business,noOfTrees:200,location:jsonObject.location,email:jsonObject.email,password:jsonObject.pass1}
     
         
@@ -367,6 +402,7 @@ function addToddyBatch(req)
     
     
         con.query(sql, function (err, result) {
+          mongoBatchInsert(result.insertId,permitOwnerName,permitOwnerPermit)
           if (err) throw err;
           console.log("Table created");
           con.end();
@@ -376,6 +412,60 @@ function addToddyBatch(req)
 
 
     
+}
+function mongoBatchInsert(id,name,permit)
+{MongoClient.connect(url, function(err, client) {
+    assert.equal(null, err);
+    console.log("Connected successfully to server");
+//date modification
+var dt=new Date();
+var dateString=dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate();
+//date modification
+
+   
+   const col = client.db(dbName).collection('Toddy_Batch');
+
+   var transfer={}
+   transfer.permit=permit
+   transfer.name=name
+   var OwnerHistory={}
+   OwnerHistory[dateString]=transfer
+   var obj={}
+   obj.batch_id=id
+   obj.ownerHistory=OwnerHistory;
+   
+   
+
+    try {
+       col.insertOne(obj)
+
+    //    col.findOne({ StudentId: 102 }, function(err, doc) {
+    //     var OwnerList=doc.Owner
+    //     OwnerList.owner5=5
+        
+    //     doc.Owner=OwnerList
+    //     console.log(doc)
+    //     //doc.save();
+      
+        
+
+        
+    //   });
+     
+      }
+      catch(err) {
+       
+      }
+  
+
+   
+    // const db = client.db(dbName);
+    // db.Student.insertOne( {StudentId:104, 
+    //     Name:"Sam Wilkinson jr", Roll:1, Birthday:2001-09-08} );
+    client.close();
+    return ;
+  });
+
 }
 
 async function handleGetToddyTapperBatch(req,res)
@@ -398,7 +488,7 @@ async function getToddyTapperBatch(req) {
   const db = makeDb();
   await db.connect(connection1);
   console.log(req.body.email)
-  var xx=`select * from toddy_batch where creator_permit='${req.body.permit}'`
+  var xx=`select * from toddy_batch where creator_permit='${req.body.permit}' && requested=0`
   console.log(xx)
 
   try {
@@ -419,6 +509,33 @@ async function getToddyTapperBatch(req) {
 
 
 /**SS02 Batch ADD */
+async function makeToddySellRequest2(req) {
+//not used but leave it here just in case
+
+  var connection11 = new Connections()
+  var connection1 = connection11.mySQLConnection()
+
+  const db = makeDb();
+  await db.connect(connection1);
+  console.log(req.body.email)
+  var xx=`select * from toddy_batch where creator_permit='${req.body.permit}' && requested=0`
+  console.log(xx)
+
+  try {
+    const users = await db.query(connection1,xx);
+   // console.log(users)
+    return users
+  } catch (e) {
+    // handle exception
+  } finally {
+    console.log('fdfd1')
+    //await db.close(connection1);
+    console.log('yfdfd')
+    //l return users
+  }
+
+
+}
 
 function makeToddySellRequest(req)
 {//jjjjjjjjjjjjjjjjjj
@@ -449,6 +566,11 @@ function makeToddySellRequest(req)
     
     
         con.query(sql, function (err, result) {
+          console.log("batch id is"+result.insertId);
+          temp11111(result.insertId)
+          console.log("---------------------------------------------------")
+
+
           if (err) throw err;
           console.log("Tablel created");
           con.end();
@@ -459,6 +581,125 @@ function makeToddySellRequest(req)
 
     
 }
+
+function temp11111(newid)
+{
+  console.log("temp11111"+newid)
+
+}
+
+function updateToddybatchAfterToddySellRequest(req)
+{//jjjjjjjjjjjjjjjjjj
+  //console.log(req)
+  //var connection11 = new Connections()
+  //date_created: '2020-11-25T18:30:00.000Z',
+  var z=new Date(req.body.date_created).toISOString().slice(0, 19).replace('T', ' ');
+  
+ 
+  var Connection=new sqlConnection();
+  var con=Connection.mySQLConnection()
+    con.connect(function(err) {
+        if (err) throw err;
+        var dateee=req.body.date_created
+        console.log("req.body.date_created "+dateee)
+       // var z=new dateee.toISOString().slice(0, 19).replace('T', ' ');
+       // console.log("z "+z)
+        console.log("Connected!");
+        var volume=parseInt(req.body.volume)
+        var sql=`insert into persons2(LastName) values('jhn')`
+        var sql=`update toddy_batch set requested=1 where batch_id=${req.body.batch_id}`
+        //         var x={name:jsonObject.name,permit:jsonObject.permit,business_type:jsonObject.business,noOfTrees:200,location:jsonObject.location,email:jsonObject.email,password:jsonObject.pass1}
+    
+        
+        //var sql = `Insert into Businessman3(permit_number,date_created,nic) values('${x}','${z}','${y}')`;
+        //var sql = `Insert into Businessman2(permit_number,nic) values('${x}','${y}')`;
+    
+    
+        con.query(sql, function (err, result) {
+          if (err) throw err;
+          console.log("Tablel created");
+          con.end();
+        });
+      });
+
+
+
+    
+}
+
+
+/**SS01 Buy Toddy Batch */
+async function handleToddyPurchase(req,res)
+{
+  var results = await ToddyPurchase(req)
+  console.log("transfer at handle")
+  results= await updateRequestIfPurchaseMade(req)
+  // var results2=JSON.parse(JSON.stringify(results))
+  // console.log(results2)
+  // var resultmod={result:results2}
+  // console.log("resultmod00000000000000000000000000000000000000000000000000000000000000000000")
+  // console.log(resultmod)
+  res.send({a:1})
+
+ 
+
+
+}
+async function ToddyPurchase(req)
+{
+  
+  var connection11 = new Connections()
+  var connection1 = connection11.mySQLConnection()
+
+  const db = makeDb();
+  await db.connect(connection1);
+  console.log(req.body.email)
+ 
+  var xx=`UPDATE toddy_batch SET current_owner_permit ='${req.body.ownerName}', current_owner_name = '${req.body.ownerPermit}' WHERE batch_id=${req.body.batchId}`
+  console.log(xx)
+
+  try {
+     await db.query(connection1,xx);
+   console.log("transfer at sql")
+    return 
+  } catch (e) {
+    // handle exception
+  } finally {
+    console.log('fdfd1')
+    //await db.close(connection1);
+    console.log('yfdfd')
+    //l return users
+  }
+
+}
+async function updateRequestIfPurchaseMade(req)
+{
+  
+  var connection11 = new Connections()
+  var connection1 = connection11.mySQLConnection()
+
+  const db = makeDb();
+  await db.connect(connection1);
+  console.log(req.body.email)
+ 
+  var xx=`UPDATE toddy_request SET approval_status =1 where request_id=${req.body.requestId}`
+  console.log(xx)
+
+  try {
+     await db.query(connection1,xx);
+   console.log("transfer at sql2")
+    return 
+  } catch (e) {
+    // handle exception
+  } finally {
+    console.log('fdfd1')
+    //await db.close(connection1);
+    console.log('yfdfd')
+    //l return users
+  }
+
+}
+/**SS02 Buy Toddy Batch */
 
 
 /**SS01 Toody Sell Request */
