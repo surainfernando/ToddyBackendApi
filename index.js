@@ -103,7 +103,13 @@ app.post('/toddybatch/getToddyTapperBatch', (req, res) => {
   //res.send({a:34})
   
   })
-  app.post('/toddybatch/makeToddySellRequest', (req, res) => {
+  
+
+
+
+/**RR02 toddyBatch*/
+/**RR01 Toddy Request*/
+app.post('/toddybatch/makeToddySellRequest', (req, res) => {
 
   console.log('/toddybatch/makeToddySellRequest--------------------------')
     // console.log("post------------------------------------------")
@@ -127,10 +133,19 @@ app.post('/toddybatch/getToddyTapperBatch', (req, res) => {
   
   
   })
+app.post('/toddybatch/getToddySellRequest', (req, res) => {
 
+  console.log('/toddybatch/getToddySellRequest--------------------------')
 
+  console.log(req.body)
 
-/**RR02 toddyBatch*/
+  handleGetToddySellRequest(req,res)
+   //res.send({s:1})
+  
+  
+  })
+
+/**RR02 Toddy Request*/
 
 
 /*88888888888888888888888888888888888888888888888888*/
@@ -444,6 +459,53 @@ function makeToddySellRequest(req)
 
     
 }
+
+
+/**SS01 Toody Sell Request */
+async function handleGetToddySellRequest(req,res)
+{
+  var results = await getToddySellRequest(req)
+  var results2=JSON.parse(JSON.stringify(results))
+  console.log(results2)
+  var resultmod={result:results2}
+  console.log("resultmod00000000000000000000000000000000000000000000000000000000000000000000")
+  console.log(resultmod)
+  res.send(resultmod)
+
+ 
+
+
+}
+
+async function getToddySellRequest(req) {
+
+
+
+  var connection11 = new Connections()
+  var connection1 = connection11.mySQLConnection()
+
+  const db = makeDb();
+  await db.connect(connection1);
+  console.log(req.body.email)
+  var xx=`select * from Toddy_Request where buyer_permit_number='${req.body.permit}' && approval_status=0`
+  console.log(xx)
+
+  try {
+    const users = await db.query(connection1,xx);
+   // console.log(users)
+    return users
+  } catch (e) {
+    // handle exception
+  } finally {
+    console.log('fdfd1')
+    //await db.close(connection1);
+    console.log('yfdfd')
+    //l return users
+  }
+
+
+}
+/**SS02 Toody Sell Request */
 
 
 
