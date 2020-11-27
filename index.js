@@ -91,6 +91,9 @@ console.log('/toddybatch/add---------------------------')
 //handleRegisterBusinessman(req,res)
 //console.log(req)g
 addToddyBatch(req)
+var permitnumber=req.body.permit
+var volume=req.body.volume
+addToddyVolumeToTotal(volume,permitnumber)
 res.send({a:34})
 
 })
@@ -122,13 +125,18 @@ app.post('/toddybatch/getToddyTapperBatch', (req, res) => {
 app.post('/toddybatch/maketransfer', (req, res) => {
 
   console.log('/toddybatch/maketransfer--------------------------')
-    
+    console.log(req.body)
   
   //makeToddySellRequest(req)
  // console.log("madetoddy sell request")
  // updateToddybatchAfterToddySellRequest(req)
  handleToddyPurchase(req,res)
- console.log(req.body)
+ var volume=req.body.volume;
+ var newOwner=req.body.ownerPermit
+ var oldowner=req.body.sellerPermit
+ addToddyVolumeToTotal(volume,newOwner)
+ minusToddyVolumeToTotal(volume,oldowner)
+  console.log(req.body)
   //res.send({s:1})
   
   
@@ -392,8 +400,9 @@ function addToddyBatch(req)
         var z=new Date().toISOString().slice(0, 19).replace('T', ' ');
         console.log("Connected!");
         var volume=parseInt(req.body.volume)
-        var sql=`insert into persons2(LastName) values('jhn')`
-        var sql=`insert into Toddy_Batch(requested,date_created,volume,creator_permit,creator_name,current_owner_permit,current_owner_name,current_owner_purchase_date) values(0,'${z}',${volume},'${req.body.permit}','${req.body.name}','${req.body.permit}','${req.body.name}','${z}')`
+        
+        var sql=`insert into Toddy_Batch(requested,date_created,volume,creator_permit,creator_name,current_owner_permit,current_owner_name,current_owner_purchase_date) values(0,'${z}',${volume},'${req.body.permit}','${req.body.name}','${req.body.permit}','${req.body.name}','${z}');`
+        //var sql=`update businessman set volume=volume+${volume} where name='sweeer';`
         //         var x={name:jsonObject.name,permit:jsonObject.permit,business_type:jsonObject.business,noOfTrees:200,location:jsonObject.location,email:jsonObject.email,password:jsonObject.pass1}
     
         
@@ -413,6 +422,79 @@ function addToddyBatch(req)
 
     
 }
+
+function addToddyVolumeToTotal(volumeo,permitnumber)
+{
+  //var permitOwnerName=req.body.name
+  //var permitOwnerPermit=req.body.permit
+  //console.log(req)
+  //var connection11 = new Connections()
+  var Connection=new sqlConnection();
+  var con=Connection.mySQLConnection()
+    con.connect(function(err) {
+        if (err) throw err;
+        var z=new Date().toISOString().slice(0, 19).replace('T', ' ');
+        console.log("Connected!");
+        //var volume=parseInt(req.body.volume)
+        
+        var sql=`update businessman set volume=volume+${volumeo} where permit_number='${permitnumber}';`
+        //var sql=`update businessman set no_of_trees=29930 where name='sweeer';`
+        //         var x={name:jsonObject.name,permit:jsonObject.permit,business_type:jsonObject.business,noOfTrees:200,location:jsonObject.location,email:jsonObject.email,password:jsonObject.pass1}
+    
+        
+        //var sql = `Insert into Businessman3(permit_number,date_created,nic) values('${x}','${z}','${y}')`;
+        //var sql = `Insert into Businessman2(permit_number,nic) values('${x}','${y}')`;
+    
+    
+        con.query(sql, function (err, result) {
+          //mongoBatchInsert(result.insertId,permitOwnerName,permitOwnerPermit)
+          if (err) throw err;
+          console.log("Table created");
+          con.end();
+        });
+      });
+
+
+
+    
+}
+function minusToddyVolumeToTotal(volumeo,permitnumber)
+{
+  //var permitOwnerName=req.body.name
+  //var permitOwnerPermit=req.body.permit
+  //console.log(req)
+  //var connection11 = new Connections()
+  var Connection=new sqlConnection();
+  var con=Connection.mySQLConnection()
+    con.connect(function(err) {
+        if (err) throw err;
+        var z=new Date().toISOString().slice(0, 19).replace('T', ' ');
+        console.log("Connected!");
+        //var volume=parseInt(req.body.volume)
+        
+        var sql=`update businessman set volume=volume-${volumeo} where permit_number='${permitnumber}';`
+        //var sql=`update businessman set no_of_trees=29930 where name='sweeer';`
+        //         var x={name:jsonObject.name,permit:jsonObject.permit,business_type:jsonObject.business,noOfTrees:200,location:jsonObject.location,email:jsonObject.email,password:jsonObject.pass1}
+    
+        
+        //var sql = `Insert into Businessman3(permit_number,date_created,nic) values('${x}','${z}','${y}')`;
+        //var sql = `Insert into Businessman2(permit_number,nic) values('${x}','${y}')`;
+    
+    
+        con.query(sql, function (err, result) {
+          //mongoBatchInsert(result.insertId,permitOwnerName,permitOwnerPermit)
+          if (err) throw err;
+          console.log("Table created");
+          con.end();
+        });
+      });
+
+
+
+    
+}
+
+
 function mongoBatchInsert(id,name,permit)
 {MongoClient.connect(url, function(err, client) {
     assert.equal(null, err);
@@ -682,7 +764,7 @@ async function updateRequestIfPurchaseMade(req)
   await db.connect(connection1);
   console.log(req.body.email)
  
-  var xx=`UPDATE toddy_request SET approval_status =1 where request_id=${req.body.requestId}`
+  var xx=`UPDATE toddy_request SET approval_status=1 where request_id=${req.body.requestId}`
   console.log(xx)
 
   try {
