@@ -4,7 +4,7 @@ var mysql = require('mysql');
 const app = express()
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const port = 3000
+const port = 5000
 const bussinessman = require('./DatabaseTransactions/businessman.js');
 const businessman = require('./DatabaseTransactions/businessman.js');
 const MongoClient = require('mongodb').MongoClient;
@@ -939,7 +939,268 @@ app.get('/d', (req, res) => {
   //res.send('Hello World!')
 })
 
+//////////////////////////////////////////////////////////////////////////////
+/**Manufacturer functions */
+app.post('/manufacturer/getbusinessmen', (req, res) => {
 
+
+  // console.log("post------------------------------------------")
+  // var x = { dd: "ddfdf" }
+  // let busi = new businessman();
+  // busi.registerBusinessman(req.body)
+  // console.log(req.body)
+  //res.send(x)
+//handleRegisterBusinessman(req,res)
+console.log('/manufacturer/getbusinessmen--------------------------')
+//res.send({a:'mono o mono'})
+handegetBusinessmen(req,res)
+
+})
+
+async function handegetBusinessmen(req,res)
+{
+  var results = await getBusinessmen()
+
+  results=JSON.parse(JSON.stringify(results))
+  console.log(results)
+  res.send(results)
+
+
+}
+
+async function getBusinessmen(req) {
+
+
+  var connection11 = new Connections()
+  var connection1 = connection11.mySQLConnection()
+
+  const db = makeDb();
+  await db.connect(connection1);
+ // console.log(req.body.email)
+  var xx=`select * from businessman`
+  console.log(xx)
+
+  try {
+    const users = await db.query(connection1,xx);
+   console.log(users)
+    return users
+  } catch (e) {
+    // handle exception
+  } finally {
+    console.log('fdfd1')
+    //await db.close(connection1);
+    console.log('yfdfd')
+    //l return users
+  }
+
+
+}
+
+/**Manufacturer functions */
+/**Manufacturer functions- Insert batch */
+
+app.post('/manufacturer/putBatch', (req, res) => {
+
+
+  // console.log("post------------------------------------------")
+  // var x = { dd: "ddfdf" }
+  // let busi = new businessman();
+  // busi.registerBusinessman(req.body)
+  // console.log(req.body)
+  //res.send(x)
+//handleRegisterBusinessman(req,res)///
+console.log('/manufacturer/putBatch--------------------------')
+console.log(req.body)
+addBottlebatch(req)
+res.send({a:'mono o mono'})
+//handegetBusinessmen(req,res)
+
+
+})
+
+
+/**Manufacturer functions- Insert batch */
+
+
+
+
+
+ 
+ function addBottlebatch(req)
+{
+  var date=new Date().toISOString().slice(0, 19).replace('T', ' ');
+  
+  var Connection=new sqlConnection();
+ var con=Connection.mySQLConnection()
+    con.connect(function(err) {
+        if (err) throw err;
+        
+        console.log("Connected!");
+      
+        
+        var sql=`Insert into Bottle_Batch(date_created,volume,name,description,creator_permit,creator_name,current_owner_permit,current_owner_name,current_owner_purchase_date,product_id ) values('${date}',${req.body.volume},'${req.body.productName}','${req.body.description}','${req.body.creatorPermit}','${req.body.creatorName}','${req.body.creatorPermit}','${req.body.creatorName}','${date}','${req.body.productID}')`
+       // sql='call  loopBottle()'
+        console.log(sql)
+    
+    
+        con.query(sql, function (err, result) {
+         
+          //mongoBatchInsert(result.insertId,permitOwnerName,permitOwnerPermit)
+          if (err) throw err;
+          console.log("Table created");
+          console.log(result.insertId)
+          addBottle(result.insertId)
+          con.end();
+        });
+      });
+    }
+
+  function addBottle(id)
+{
+  var date=new Date().toISOString().slice(0, 19).replace('T', ' ');
+  
+  var Connection=new sqlConnection();
+ var con=Connection.mySQLConnection()
+    con.connect(function(err) {
+        if (err) throw err;
+        
+        console.log("Connected!");
+      
+        
+       // var sql=`Insert into Bottle_Batch(date_created,volume,name,description,creator_permit,creator_name,current_owner_permit,current_owner_name,current_owner_purchase_date,product_id ) values('${date}',${req.body.volume},'${req.body.productName}','${req.body.description}','${req.body.creatorPermit}','${req.body.creatorName}','${req.body.creatorPermit}','${req.body.creatorName}','${date}','${req.body.productID}')`
+        var sql=`call  loopBottle(${id})`
+        console.log(sql)
+    
+    
+        con.query(sql, function (err, result) {
+         
+          //mongoBatchInsert(result.insertId,permitOwnerName,permitOwnerPermit)
+          if (err) throw err;
+          console.log("Table created");
+          console.log(result.insertId)
+          con.end();
+        });
+      });
+    }
+
+    /**Manufacturer functions get bottle batch */
+    app.post('/manufacturer/getBottleBatch', (req, res) => {
+
+
+      // console.log("post------------------------------------------")
+      // var x = { dd: "ddfdf" }
+      // let busi = new businessman();
+      // busi.registerBusinessman(req.body)
+      // console.log(req.body)
+      //res.send(x)
+    //handleRegisterBusinessman(req,res)
+    console.log('/manufacturer/getbusinessmen--------------------------')
+    //res.send({a:'mono o mono'})
+    handegetBottleBatch(req,res)
+    
+    })
+    
+    async function handegetBottleBatch(req,res)
+    {
+      var results = await getBottleBatch()
+    
+      results=JSON.parse(JSON.stringify(results))
+      console.log(results)
+      res.send(results)
+    
+    
+    }
+    
+    async function getBottleBatch(req) {
+    
+    
+      var connection11 = new Connections()
+      var connection1 = connection11.mySQLConnection()
+    
+      const db = makeDb();
+      await db.connect(connection1);
+     // console.log(req.body.email)
+      var xx=`select * from bottle_batch`
+      console.log(xx)
+    
+      try {
+        const users = await db.query(connection1,xx);
+       console.log(users)
+        return users
+      } catch (e) {
+        // handle exception
+      } finally {
+        console.log('fdfd1')
+        //await db.close(connection1);
+        console.log('yfdfd')
+        //l return users
+      }
+    
+    
+    }
+
+
+    /**Manufacrurer Bttle batch */
+    app.post('/manufacturer/getBottle', (req, res) => {
+
+
+      // console.log("post------------------------------------------")
+      // var x = { dd: "ddfdf" }
+      // let busi = new businessman();
+      // busi.registerBusinessman(req.body)
+      // console.log(req.body)
+      //res.send(x)
+    //handleRegisterBusinessman(req,res)
+    console.log('/manufacturer/getbottle--------------------------')
+    //res.send({a:'mono o mono'})
+    handegetBottle(req,res)
+    
+    })
+    
+    async function handegetBottle(req,res)
+    {
+      var results = await getBottle()
+    
+      results=JSON.parse(JSON.stringify(results))
+      console.log(results)
+      res.send(results)
+    
+    
+    }
+    
+    async function getBottle(req) {
+    
+    
+      var connection11 = new Connections()
+      var connection1 = connection11.mySQLConnection()
+    
+      const db = makeDb();
+      await db.connect(connection1);
+     // console.log(req.body.email)
+      var xx=`select * from bottle1`
+      console.log(xx)
+    
+      try {
+        const users = await db.query(connection1,xx);
+       console.log(users)
+        return users
+      } catch (e) {
+        // handle exception
+      } finally {
+        console.log('fdfd1')
+        //await db.close(connection1);
+        console.log('yfdfd')
+        //l return users
+      }
+    
+    
+    }
+
+
+
+
+
+    
 
 
 
@@ -947,5 +1208,4 @@ app.get('/d', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
-
 

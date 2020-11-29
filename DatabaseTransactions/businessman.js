@@ -14,7 +14,7 @@ class businessman{
         con.connect(function(err) {
             if (err) throw err;
             console.log("Connected!");
-            var sql=`Insert into Businessman(permit_number,name,location,email,business_type,no_of_trees,password) values('${jsonObject.permit}','${jsonObject.name}','${jsonObject.location}','${jsonObject.email}','${jsonObject.business} ',${jsonObject.noOfTrees},'${jsonObject.pass1}')`
+            var sql=`Insert into Businessman(volume,permit_number,name,location,email,business_type,no_of_trees,password) values(0,'${jsonObject.permit}','${jsonObject.name}','${jsonObject.location}','${jsonObject.email}','${jsonObject.business} ',${jsonObject.noOfTrees},'${jsonObject.pass1}')`
             //         var x={name:jsonObject.name,permit:jsonObject.permit,business_type:jsonObject.business,noOfTrees:200,location:jsonObject.location,email:jsonObject.email,password:jsonObject.pass1}
         
             
@@ -161,6 +161,6 @@ class businessman{
         
     }
 }
-module.exports = businessman
+module.exports =  businessman
 
 
