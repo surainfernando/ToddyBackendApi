@@ -1029,6 +1029,10 @@ res.send({a:'mono o mono'})
  function addBottlebatch(req)
 {
   var date=new Date().toISOString().slice(0, 19).replace('T', ' ');
+  var mongobody=req.body;
+  var creatorpermit1=req.body.creatorPermit
+  var volume1=req.body.volume*10
+  console.log("volukkkkme"+volume1)
   
   var Connection=new sqlConnection();
  var con=Connection.mySQLConnection()
@@ -1049,6 +1053,8 @@ res.send({a:'mono o mono'})
           if (err) throw err;
           console.log("Table created");
           console.log(result.insertId)
+          addBottlebatchToMongo(result.insertId,mongobody)
+          minusToddyVolumeToTotal(volume1,creatorpermit1)
           addBottle(result.insertId)
           con.end();
         });
@@ -1082,6 +1088,67 @@ res.send({a:'mono o mono'})
         });
       });
     }
+
+    
+    function addBottlebatchToMongo(id,obj)
+{MongoClient.connect(url, function(err, client) {
+    assert.equal(null, err);
+    console.log("Connected successfully to server");
+//date modification
+var dt=new Date();
+
+var dateString=dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate();
+var bottlebatch={};
+bottlebatch.id=id
+bottlebatch.productname=obj.productName
+bottlebatch.description=obj.description
+bottlebatch.createDate=dateString
+bottlebatch.creator=obj.creatorName
+bottlebatch.lastloc=obj.creatorName
+var history={}
+history[dateString]=obj.creatorName;
+bottlebatch.volume=obj.volume
+bottlebatch.history=history
+
+
+   
+   const col = client.db(dbName).collection('Bottle_Batch');
+
+   
+   
+   
+
+    try {
+       col.insertOne(bottlebatch)
+
+    //    col.findOne({ StudentId: 102 }, function(err, doc) {
+    //     var OwnerList=doc.Owner
+    //     OwnerList.owner5=5
+        
+    //     doc.Owner=OwnerList
+    //     console.log(doc)
+    //     //doc.save();
+      
+        
+
+        
+    //   });
+     
+      }
+      catch(err) {
+       
+      }
+  
+
+   
+    // const db = client.db(dbName);
+    // db.Student.insertOne( {StudentId:104, 
+    //     Name:"Sam Wilkinson jr", Roll:1, Birthday:2001-09-08} );
+    client.close();
+    return ;
+  });
+
+}
 
     /**Manufacturer functions get bottle batch */
     app.post('/manufacturer/getBottleBatch', (req, res) => {
@@ -1158,8 +1225,8 @@ res.send({a:'mono o mono'})
     })
     
     async function handegetBottle(req,res)
-    {
-      var results = await getBottle()
+    { //get details of all bottles . not customer one bottle
+      var results = await getBottles()
     
       results=JSON.parse(JSON.stringify(results))
       console.log(results)
@@ -1168,8 +1235,8 @@ res.send({a:'mono o mono'})
     
     }
     
-    async function getBottle(req) {
-    
+    async function getBottles(req) {
+    //get details of all bottles . not customer one bottle
     
       var connection11 = new Connections()
       var connection1 = connection11.mySQLConnection()
@@ -1196,10 +1263,131 @@ res.send({a:'mono o mono'})
     
     }
 
+/**Customers Function */
+app.post('/Customer/getBottle', (req, res) => {
+
+
+  // console.log("post------------------------------------------")
+  // var x = { dd: "ddfdf" }
+  // let busi = new businessman();
+  // busi.registerBusinessman(req.body)
+  // console.log(req.body)
+  //res.send(x)
+//handleRegisterBusinessman(req,res)
+console.log('/Customer/getBottle--------------------------')
+console.log(req.body)
+
+//res.send({a:'mono o mono'})
+handleGetBottle(req,res)
+
+})
+async function handleGetBottle(req,res)
+{console.log("b1")
+var t=await getBottle(req);
+console.log(t)
+console.log("b2")
+res.send(t)
+
+}
+
+async function getBottle(req) {
+
+    const client = await MongoClient.connect(url, { useNewUrlParser: true })
+        .catch(err => { console.log(err); });
+
+    if (!client) {
+        return;
+    }
+
+    try {
+
+        const db = client.db(dbName);
+
+        let collection = db.collection('Bottle_Batch');
+
+        let query = { id: req.body.batchId}
+
+        let res = await collection.findOne(query);
+
+        //console.log(res);
+        return res
+       
+
+    } catch (err) {
+
+        console.log(err);
+    } finally {
+
+        client.close();
+    }
+}
 
 
 
 
+/**Customers Function */
+
+/**Get Producers with trees */
+
+app.post('/Stat/getproducers', (req, res) => {
+
+
+  // console.log("post------------------------------------------")
+  // var x = { dd: "ddfdf" }
+  // let busi = new businessman();
+  // busi.registerBusinessman(req.body)
+  // console.log(req.body)
+  //res.send(x)
+//handleRegisterBusinessman(req,res)
+console.log('/Customer/getBottle--------------------------')
+console.log(req.body)
+
+//res.send({a:'mono o mono'})
+handegetProducers(req,res)
+
+})
+
+
+
+
+async function handegetProducers(req,res)
+{ //get details of all bottles . not customer one bottle
+  var results = await getProducers()
+
+  results=JSON.parse(JSON.stringify(results))
+  console.log(results)
+  results.send(results)
+
+
+
+}
+
+async function getProducers() {
+//get details of all bottles . not customer one bottle
+
+  var connection11 = new Connections()
+  var connection1 = connection11.mySQLConnection()
+
+  const db = makeDb();
+  await db.connect(connection1);
+ // console.log(req.body.email)
+  var xx=`select * from businessman where business_type='Toddy Producer '`
+  console.log(xx)
+
+  try {
+    const users = await db.query(connection1,xx);
+  // console.log(users)
+    return users
+  } catch (e) {
+    // handle exception
+  } finally {
+    console.log('fdfd1')
+    //await db.close(connection1);
+   // console.log('yfdfd')
+    //l return users
+  }
+}
+/**Get Producers with trees */
     
 
 
